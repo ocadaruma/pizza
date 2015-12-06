@@ -1,10 +1,12 @@
 @main {
     <div class="mui-container">
-        <div class="mui-textfield">
-            <input id="text" type="text" placeholder="解析したい文章を入力してください" required>
-        </div>
-        <button type="submit" class="mui-btn mui-btn--primary" id="classify">生成</button>
-
+        <form onsubmit="return false;">
+            <div class="mui-textfield">
+                <input id="text" type="text" placeholder="解析したい文章を入力してください" required>
+            </div>
+            <button type="submit" class="mui-btn mui-btn--primary" id="classify">生成</button>
+        </form>
+        <canvas id="chart"></canvas>
         <table class="mui-table">
             <thead>
                 <tr>
@@ -14,36 +16,64 @@
             </thead>
             <tbody id="result">
             </tbody>
-            <canvas id="" width="400" height="400"></canvas>
         </table>
     </div>
 
     <script>
-        $(function(){
-            $("#text").change(function() {
-                update();
-            });
+            $(function(){
+                Chart.defaults.global.responsive = true;
+                var ctx = document.getElementById("chart").getContext("2d");
 
-            $("#classify").on("click", function() {
-                var text = $("#text").val();
-                $.get("/classify/" + text).success(function(data){
-                    $("#result").empty();
-                    console.log(data)
-                    data.forEach(function(c) {
-                        $("#result").append("<tr><th>" +
-                                c.class_name +
-                                "</th><th>" +
-                                c.confidence +
-                                "</th></tr>")
+                $("#text").change(function() {
+                    update();
+                });
+
+                $("#classify").on("click", function() {
+                    var text = $("#text").val();
+                    $.get("/classify/" + text).success(function(data){
+                        $("#result").empty();
+                        console.log(data);
+                        var labels = [];
+                        var points = [];
+
+                        data.forEach(function(c) {
+                            $("#result").append("<tr><th>" +
+                                    c.class_name +
+                                    "</th><th>" +
+                                    c.confidence +
+                                    "</th></tr>")
+
+                            labels.push(c.class_name);
+                            points.push(c.confidence);
+                        });
+
+                        var chartData = {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: "datasets",
+                                    fillColor: "rgba(151,187,205,0.5)",
+                                    strokeColor: "rgba(151,187,205,0.8)",
+                                    highlightFill: "rgba(151,187,205,0.75)",
+                                    highlightStroke: "rgba(151,187,205,1)",
+                                    data: points
+                                },
+                            ]
+                        };
+
+                        if (window.bar) {
+                            window.bar.destroy();
+                        }
+
+                        window.bar = new Chart(ctx).Bar(chartData);
                     });
                 });
-            });
-            
-            var update = function() {
-                $("#classify").prop("disabled", $("#text").val().length == 0)
-            };
 
-            update();
-        });
+                var update = function() {
+                    $("#classify").prop("disabled", $("#text").val().length == 0);
+                };
+
+                update();
+            });
     </script>
 }
