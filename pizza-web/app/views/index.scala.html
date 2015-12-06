@@ -1,7 +1,49 @@
-@(message: String)
+@main {
+    <div class="mui-container">
+        <div class="mui-textfield">
+            <input id="text" type="text" placeholder="解析したい文章を入力してください" required>
+        </div>
+        <button type="submit" class="mui-btn mui-btn--primary" id="classify">生成</button>
 
-@main("Welcome to Play") {
+        <table class="mui-table">
+            <thead>
+                <tr>
+                    <th>カテゴリ</th>
+                    <th>スコア</th>
+                </tr>
+            </thead>
+            <tbody id="result">
+            </tbody>
+            <canvas id="" width="400" height="400"></canvas>
+        </table>
+    </div>
 
-    @play20.welcome(message)
+    <script>
+        $(function(){
+            $("#text").change(function() {
+                update();
+            });
 
+            $("#classify").on("click", function() {
+                var text = $("#text").val();
+                $.get("/classify/" + text).success(function(data){
+                    $("#result").empty();
+                    console.log(data)
+                    data.forEach(function(c) {
+                        $("#result").append("<tr><th>" +
+                                c.class_name +
+                                "</th><th>" +
+                                c.confidence +
+                                "</th></tr>")
+                    });
+                });
+            });
+            
+            var update = function() {
+                $("#classify").prop("disabled", $("#text").val().length == 0)
+            };
+
+            update();
+        });
+    </script>
 }
