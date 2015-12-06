@@ -6,7 +6,6 @@
             </div>
             <button type="submit" class="mui-btn mui-btn--primary" id="classify">生成</button>
         </form>
-        <canvas id="chart"></canvas>
         <table class="mui-table">
             <thead>
                 <tr>
@@ -17,6 +16,7 @@
             <tbody id="result">
             </tbody>
         </table>
+        <canvas id="chart"></canvas>
     </div>
 
     <script>
@@ -65,7 +65,7 @@
                             window.bar.destroy();
                         }
 
-                        window.bar = new Chart(ctx).Bar(chartData);
+                        window.bar = new Chart(ctx).Radar(chartData);
                     });
                 });
 
